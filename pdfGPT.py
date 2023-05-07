@@ -16,14 +16,15 @@ llm = OpenAI(temperature=0.9)
 st.title("pdfGPT")
 
 # upload file
-pdf = st.file_uploader("Upload your PDF", type="pdf")
+pdfs = st.file_uploader("Upload your PDF", type="pdf", accept_multiple_files=True)
 
 # extract the text
-if pdf is not None:
-  pdf_reader = PdfReader(pdf)
+if pdfs:
   text = ""
-  for page in pdf_reader.pages:
-    text += page.extract_text()
+  for pdf in pdfs:
+    pdf_reader = PdfReader(pdf)
+    for page in pdf_reader.pages:
+      text += page.extract_text()
 
   # split into chunks
   text_splitter = CharacterTextSplitter(
@@ -33,11 +34,11 @@ if pdf is not None:
     length_function=len
   )
   chunks = text_splitter.split_text(text)
-  
+
   # create embeddings
   embeddings = OpenAIEmbeddings()
   knowledge_base = FAISS.from_texts(chunks, embeddings)
-
+  
   # show user input
   user_question = st.text_input("Question:")
   if user_question:
@@ -45,3 +46,4 @@ if pdf is not None:
     chain = load_qa_chain(llm, chain_type="stuff")
     response = chain.run(input_documents=docs, question=user_question)
     st.write(response)
+  
