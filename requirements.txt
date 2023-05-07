@@ -3,3 +3,5 @@ python-dotenv
 langchain
 streamlit
 pypdf2
+tiktoken
+faiss-cpu
