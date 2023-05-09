@@ -7,7 +7,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationSummaryBufferMemory
 
 os.getenv("OPENAI_API_KEY")
 
@@ -42,7 +42,7 @@ if pdfs:
   knowledge_base = FAISS.from_texts(chunks, embeddings)
 
   # memory
-  memory = ConversationBufferMemory(memory_key="chat_history")
+  memory = ConversationSummaryBufferMemory(llm=llm, memory_key="chat_history")
 
   chain = ConversationalRetrievalChain.from_llm(llm,
                                                 knowledge_base.as_retriever(),
@@ -62,6 +62,6 @@ if pdfs:
     answer(user_question)
 
     with st.expander('Chat History'):
-      st.info(chain.memory.buffer)
+      st.info(memory.chat_memory)
   #else:
   #answer("summarize in 50 words")
